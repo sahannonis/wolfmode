@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WOLFMODE">
+<meta name="description" content="Discipline is non-negotiable.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>WOLFMODE</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111;
+  --surface2: #1a1a1a;
+  --border: #222;
+  --accent: #c8a45a;
+  --accent2: #8b6e3a;
+  --text: #f0ece4;
+  --muted: #666;
+  --danger: #c0392b;
+  --success: #27ae60;
+  --shame: #8b0000;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 430px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  height: 100dvh;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.hero svg { width: 100%; height: 100%; }
+
+.hero-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, #0a0a0a);
+  height: 120px;
+  pointer-events: none;
+}
+
+.hero-text {
+  position: absolute;
+  bottom: 16px;
+  left: 0; right: 0;
+  text-align: center;
+}
+
+.hero-text h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.hero-text p {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.date-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.date-label { font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.date-val { font-size: 13px; font-weight: 600; color: var(--accent); }
+
+.score-ring {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.score-ring span { font-size: 17px; font-weight: 700; color: var(--text); }
+
+.progress-bar { height: 2px; background: var(--border); flex-shrink: 0; }
+.progress-fill { height: 100%; background: var(--accent); transition: width 0.4s; }
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 11px 4px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.view { display: none; padding: 18px; }
+.view.active { display: block; }
+
+.section-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+  user-select: none;
+}
+
+.task-item.done { border-color: var(--success); background: #0d1f14; }
+.task-item.done .task-name { text-decoration: line-through; color: var(--muted); }
+
+.task-check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.task-item.done .task-check { background: var(--success); border-color: var(--success); color: #fff; }
+
+.task-meta { flex: 1; min-width: 0; }
+.task-name { font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.day-badges { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 5px; }
+.day-badge {
+  font-size: 9px; padding: 2px 5px;
+  border-radius: 3px;
+  background: var(--surface2); color: var(--muted);
+  letter-spacing: 1px;
+}
+.day-badge.on { background: var(--accent2); color: var(--accent); }
+
+.add-task-btn {
+  width: 100%; padding: 13px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: inherit; font-size: 13px; letter-spacing: 1px;
+  cursor: pointer; transition: all 0.2s; margin-top: 4px;
+}
+.add-task-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Modal */
+.modal-bg {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 100;
+  align-items: flex-end; justify-content: center;
+}
+.modal-bg.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  padding: 24px 20px 36px;
+  width: 100%; max-width: 430px;
+}
+
+.modal h3 { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+
+.field { margin-bottom: 14px; }
+.field label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+.field input {
+  width: 100%; padding: 10px 12px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); font-family: inherit; font-size: 14px;
+}
+.field input:focus { outline: none; border-color: var(--accent); }
+
+.days-picker { display: flex; gap: 5px; }
+.dp-btn {
+  flex: 1; padding: 8px 0;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 5px;
+  color: var(--muted); font-family: inherit; font-size: 11px; cursor: pointer; transition: all 0.15s;
+}
+.dp-btn.sel { background: var(--accent2); border-color: var(--accent); color: var(--accent); }
+
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-cancel {
+  flex: 1; padding: 12px;
+  background: transparent; border: 1px solid var(--border); border-radius: 8px;
+  color: var(--muted); font-family: inherit; font-size: 13px; cursor: pointer;
+}
+.btn-save {
+  flex: 2; padding: 12px;
+  background: var(--accent); border: none; border-radius: 8px;
+  color: #0a0a0a; font-family: inherit; font-size: 13px; font-weight: 700; letter-spacing: 1px; cursor: pointer;
+}
+
+/* Shame modal */
+.shame-modal {
+  display: none;
+  position: fixed; inset: 0;
+  background: #060000;
+  z-index: 200;
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 28px; text-align: center;
+}
+.shame-modal.open { display: flex; }
+.shame-icon { font-size: 56px; margin-bottom: 18px; }
+.shame-title {
+  font-size: 20px; font-weight: 700; letter-spacing: 4px; color: var(--danger);
+  margin-bottom: 16px; text-transform: uppercase;
+}
+.shame-text { font-size: 14px; line-height: 1.8; color: #a02020; margin-bottom: 32px; max-width: 340px; }
+.shame-close {
+  padding: 12px 32px;
+  background: transparent; border: 1px solid var(--danger); border-radius: 6px;
+  color: var(--danger); font-family: inherit; font-size: 11px; letter-spacing: 2px;
+  cursor: pointer; text-transform: uppercase;
+}
+.shame-tasks { font-size: 12px; color: #7a1a1a; margin-bottom: 20px; line-height: 1.7; }
+
+/* History */
+.history-day {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 10px; overflow: hidden;
+}
+.history-day-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; cursor: pointer;
+}
+.history-day-date { font-size: 12px; font-weight: 600; color: var(--text); letter-spacing: 1px; }
+.history-score { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.score-good { background: #0d1f14; color: var(--success); }
+.score-bad { background: #1f0d0d; color: var(--danger); }
+.score-mid { background: #1f1a0d; color: #e67e22; }
+
+.history-tasks { padding: 0 14px 12px; display: none; }
+.history-tasks.open { display: block; }
+.history-task-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; border-top: 1px solid var(--border); font-size: 13px;
+}
+.ht-done { color: var(--success); }
+.ht-fail { color: var(--danger); }
+
+/* Settings */
+.settings-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;
+}
+.settings-label { font-size: 13px; color: var(--text); }
+.settings-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.settings-control input[type="time"] {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text); font-family: inherit; font-size: 13px; padding: 6px 10px;
+}
+.reset-btn {
+  width: 100%; padding: 13px;
+  background: transparent; border: 1px solid var(--danger); border-radius: 8px;
+  color: var(--danger); font-family: inherit; font-size: 11px; letter-spacing: 2px;
+  cursor: pointer; text-transform: uppercase; margin-top: 16px;
+}
+
+.empty-state {
+  text-align: center; padding: 36px 20px; color: var(--muted);
+  font-size: 13px; letter-spacing: 1px; line-height: 1.8;
+}
+
+.manage-task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.task-action-btn {
+  background: transparent; border: 1px solid var(--border); border-radius: 5px;
+  color: var(--muted); font-size: 11px; padding: 5px 10px; cursor: pointer;
+  font-family: inherit; transition: all 0.15s;
+}
+.task-action-btn.del { border-color: #3a1010; color: var(--danger); }
+
+.install-banner {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--accent2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.install-banner strong { color: var(--accent); display: block; margin-bottom: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <svg viewBox="0 0 430 280" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bg-grad" cx="50%" cy="60%" r="65%">
+        <stop offset="0%" stop-color="#1a1208"/>
+        <stop offset="100%" stop-color="#0a0a0a"/>
+      </radialGradient>
+      <radialGradient id="moon-grad" cx="45%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#f5e6c8"/>
+        <stop offset="60%" stop-color="#c8a45a"/>
+        <stop offset="100%" stop-color="#7a5e2a"/>
+      </radialGradient>
+      <filter id="mg">
+        <feGaussianBlur stdDeviation="2.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="eg">
+        <feGaussianBlur stdDeviation="1.5" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <rect width="430" height="280" fill="url(#bg-grad)"/>
+
+    <!-- stars -->
+    <circle cx="28" cy="18" r="1" fill="#c8a45a" opacity="0.7"/>
+    <circle cx="75" cy="32" r="0.8" fill="#fff" opacity="0.45"/>
+    <circle cx="140" cy="14" r="1.1" fill="#fff" opacity="0.5"/>
+    <circle cx="200" cy="22" r="0.7" fill="#c8a45a" opacity="0.55"/>
+    <circle cx="290" cy="16" r="1" fill="#fff" opacity="0.45"/>
+    <circle cx="370" cy="28" r="1.1" fill="#fff" opacity="0.5"/>
+    <circle cx="402" cy="9" r="0.7" fill="#c8a45a" opacity="0.65"/>
+    <circle cx="55" cy="46" r="0.6" fill="#fff" opacity="0.3"/>
+    <circle cx="340" cy="42" r="0.8" fill="#fff" opacity="0.4"/>
+    <circle cx="250" cy="10" r="0.9" fill="#fff" opacity="0.5"/>
+    <circle cx="420" cy="50" r="0.7" fill="#fff" opacity="0.35"/>
+    <circle cx="10" cy="40" r="0.6" fill="#c8a45a" opacity="0.4"/>
+
+    <!-- moon halo -->
+    <circle cx="215" cy="58" r="38" fill="#1a1208" opacity="0.5"/>
+    <!-- moon -->
+    <circle cx="215" cy="58" r="32" fill="url(#moon-grad)" opacity="0.92" filter="url(#mg)"/>
+    <!-- craters -->
+    <circle cx="204" cy="50" r="4.5" fill="#8b6e3a" opacity="0.35"/>
+    <circle cx="224" cy="66" r="3" fill="#8b6e3a" opacity="0.28"/>
+    <circle cx="209" cy="68" r="2" fill="#8b6e3a" opacity="0.22"/>
+    <circle cx="226" cy="50" r="2.5" fill="#a0824a" opacity="0.2"/>
+
+    <!-- mountains -->
+    <polygon points="0,280 0,200 55,128 115,188 172,104 230,178 295,112 358,162 430,96 430,280" fill="#0d0b08"/>
+
+    <!-- figure at 210, standing on ground ~265 -->
+    <!-- legs -->
+    <line x1="204" y1="232" x2="196" y2="268" stroke="#181818" stroke-width="9" stroke-linecap="round"/>
+    <line x1="216" y1="232" x2="226" y2="268" stroke="#181818" stroke-width="9" stroke-linecap="round"/>
+    <!-- feet -->
+    <ellipse cx="192" cy="270" rx="8" ry="3.5" fill="#111"/>
+    <ellipse cx="228" cy="270" rx="8" ry="3.5" fill="#111"/>
+
+    <!-- torso -->
+    <path d="M195 184 Q210 180 225 184 L228 232 Q210 237 192 232 Z" fill="#1c1c1c"/>
+    <!-- abs lines -->
+    <line x1="210" y1="190" x2="210" y2="231" stroke="#141414" stroke-width="1.5" opacity="0.8"/>
+    <line x1="198" y1="202" x2="222" y2="202" stroke="#141414" stroke-width="1" opacity="0.7"/>
+    <line x1="197" y1="213" x2="223" y2="213" stroke="#141414" stroke-width="1" opacity="0.7"/>
+    <line x1="198" y1="224" x2="222" y2="224" stroke="#141414" stroke-width="1" opacity="0.6"/>
+    <!-- shoulder definition -->
+    <path d="M195 186 Q185 183 184 190" stroke="#1a1a1a" stroke-width="3" fill="none"/>
+    <path d="M225 186 Q235 183 236 190" stroke="#1a1a1a" stroke-width="3" fill="none"/>
+
+    <!-- arms hanging natural -->
+    <path d="M195 188 Q180 208 178 226" stroke="#1c1c1c" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M225 188 Q240 208 242 226" stroke="#1c1c1c" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- forearms -->
+    <path d="M178 226 Q175 240 176 248" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <path d="M242 226 Q245 240 244 248" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <!-- hands -->
+    <ellipse cx="176" cy="251" rx="5" ry="4" fill="#1a1a1a"/>
+    <ellipse cx="244" cy="251" rx="5" ry="4" fill="#1a1a1a"/>
+
+    <!-- neck -->
+    <rect x="206" y="173" width="8" height="13" rx="3" fill="#1c1c1c"/>
+
+    <!-- wolf head — angular, proud -->
+    <path d="M193 158 Q196 145 210 141 Q224 145 227 158 L225 175 Q210 180 195 175 Z" fill="#1e1e1e"/>
+    <!-- cheekbones hint -->
+    <path d="M196 165 Q199 162 202 166" stroke="#161616" stroke-width="1" fill="none"/>
+    <path d="M218 165 Q221 162 224 166" stroke="#161616" stroke-width="1" fill="none"/>
+    <!-- snout -->
+    <path d="M203 168 Q210 174 217 168 Q218 162 210 160 Q202 162 203 168 Z" fill="#171717"/>
+    <!-- nose bridge line -->
+    <line x1="210" y1="143" x2="210" y2="161" stroke="#131313" stroke-width="1" opacity="0.6"/>
+    <!-- nose -->
+    <ellipse cx="210" cy="168" rx="5.5" ry="3" fill="#0d0d0d"/>
+    <ellipse cx="210" cy="167" rx="3" ry="1.5" fill="#1e1e1e"/>
+    <!-- nostrils -->
+    <circle cx="207" cy="169" r="1.2" fill="#080808"/>
+    <circle cx="213" cy="169" r="1.2" fill="#080808"/>
+    <!-- upper lip -->
+    <path d="M205 171 Q210 173 215 171" stroke="#0d0d0d" stroke-width="1" fill="none"/>
+
+    <!-- eyes — piercing amber, narrow -->
+    <ellipse cx="202" cy="156" rx="4.5" ry="3" fill="#0a0a0a"/>
+    <ellipse cx="218" cy="156" rx="4.5" ry="3" fill="#0a0a0a"/>
+    <circle cx="202" cy="156" r="2.8" fill="#c8a45a" filter="url(#eg)"/>
+    <circle cx="218" cy="156" r="2.8" fill="#c8a45a" filter="url(#eg)"/>
+    <circle cx="203" cy="155" r="1.2" fill="#0a0a0a"/>
+    <circle cx="219" cy="155" r="1.2" fill="#0a0a0a"/>
+    <!-- eye shine -->
+    <circle cx="204" cy="154.5" r="0.6" fill="#f5e6c8" opacity="0.7"/>
+    <circle cx="220" cy="154.5" r="0.6" fill="#f5e6c8" opacity="0.7"/>
+    <!-- brow ridge — stern -->
+    <path d="M198 151 Q202 148 206 152" stroke="#0d0d0d" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M214 152 Q218 148 222 151" stroke="#0d0d0d" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+    <!-- wolf ears -->
+    <polygon points="195,153 189,133 204,148" fill="#1e1e1e"/>
+    <polygon points="225,153 231,133 216,148" fill="#1e1e1e"/>
+    <!-- inner ear -->
+    <polygon points="196,151 191,137 203,148" fill="#2a1515"/>
+    <polygon points="224,151 229,137 217,148" fill="#2a1515"/>
+    <!-- ear tip highlight -->
+    <circle cx="189" cy="133" r="1.5" fill="#c8a45a" opacity="0.25" filter="url(#eg)"/>
+    <circle cx="231" cy="133" r="1.5" fill="#c8a45a" opacity="0.25" filter="url(#eg)"/>
+
+    <!-- fur texture on head -->
+    <path d="M195 158 Q197 153 199 158" stroke="#161616" stroke-width="0.8" fill="none"/>
+    <path d="M221 158 Q223 153 225 158" stroke="#161616" stroke-width="0.8" fill="none"/>
+    <path d="M207 143 Q208 140 210 143" stroke="#161616" stroke-width="0.8" fill="none"/>
+    <path d="M210 143 Q212 140 213 143" stroke="#161616" stroke-width="0.8" fill="none"/>
+
+    <!-- ground mist -->
+    <ellipse cx="215" cy="276" rx="55" ry="9" fill="#0a0a0a" opacity="0.9"/>
+    <ellipse cx="215" cy="274" rx="35" ry="5" fill="#0a0a0a" opacity="0.7"/>
+  </svg>
+  <div class="hero-overlay"></div>
+  <div class="hero-text">
+    <h1>WOLFMODE</h1>
+    <p>discipline is non-negotiable</p>
+  </div>
+</div>
+
+<div class="date-bar">
+  <div>
+    <div class="date-label">Today</div>
+    <div class="date-val" id="today-label">—</div>
+  </div>
+  <div class="score-ring">
+    <div style="font-size:11px;color:var(--muted)">completed</div>
+    <span id="score-display">0/0</span>
+  </div>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('today')">Today</div>
+  <div class="tab" onclick="switchTab('history')">History</div>
+  <div class="tab" onclick="switchTab('manage')">Tasks</div>
+  <div class="tab" onclick="switchTab('settings')">Settings</div>
+</div>
+
+<div class="scroll-area">
+  <div id="view-today" class="view active">
+    <div class="install-banner" id="install-banner">
+      <strong>Install WOLFMODE</strong>
+      Tap your browser menu → "Add to Home Screen" to install this app on your device.
+    </div>
+    <div class="section-label">Your tasks for today</div>
+    <div id="task-list"></div>
+  </div>
+
+  <div id="view-history" class="view">
+    <div class="section-label">Past performance</div>
+    <div id="history-list"></div>
+  </div>
+
+  <div id="view-manage" class="view">
+    <div class="section-label">All tasks</div>
+    <div id="manage-list"></div>
+    <button class="add-task-btn" onclick="openAddModal()">+ Add new task</button>
+  </div>
+
+  <div id="view-settings" class="view">
+    <div class="section-label">Configuration</div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-label">Daily reset time</div>
+        <div class="settings-sub">Tasks reset at this time each day</div>
+      </div>
+      <div class="settings-control">
+        <input type="time" id="reset-time" value="00:00" onchange="saveSettings()">
+      </div>
+    </div>
+    <div class="section-label" style="margin-top:20px">Danger zone</div>
+    <button class="reset-btn" onclick="triggerShameCheck()">End of day review</button>
+    <button class="reset-btn" style="margin-top:8px;border-color:#333;color:var(--muted)" onclick="clearAllData()">Clear all data</button>
+    <div style="margin-top:24px;font-size:11px;color:var(--muted);line-height:1.8;letter-spacing:0.5px">
+      Version 1.0 · WOLFMODE<br>
+      All data stored locally on your device.<br>
+      No accounts. No cloud. No excuses.
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Task Modal -->
+<div class="modal-bg" id="task-modal">
+  <div class="modal">
+    <h3 id="modal-title">New Task</h3>
+    <div class="field">
+      <label>Task name</label>
+      <input type="text" id="field-name" placeholder="Morning run, Cold shower...">
+    </div>
+    <div class="field">
+      <label>Scheduled time (optional)</label>
+      <input type="time" id="field-time">
+    </div>
+    <div class="field">
+      <label>Active days</label>
+      <div class="days-picker" id="days-picker">
+        <button class="dp-btn sel" data-d="0">Su</button>
+        <button class="dp-btn sel" data-d="1">Mo</button>
+        <button class="dp-btn sel" data-d="2">Tu</button>
+        <button class="dp-btn sel" data-d="3">We</button>
+        <button class="dp-btn sel" data-d="4">Th</button>
+        <button class="dp-btn sel" data-d="5">Fr</button>
+        <button class="dp-btn sel" data-d="6">Sa</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveTask()">Save task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shame / Praise Modal -->
+<div class="shame-modal" id="shame-modal">
+  <div class="shame-icon" id="shame-icon">🐺</div>
+  <div class="shame-title" id="shame-title">DISGRACEFUL</div>
+  <div class="shame-text" id="shame-text"></div>
+  <div class="shame-tasks" id="shame-tasks"></div>
+  <button class="shame-close" onclick="closeShame()">I'll do better tomorrow</button>
+</div>
+
+<script>
+const DAYS_LABELS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+const SHAME_MSGS = [
+  "You lazy, spineless excuse for a man. The wolf doesn't rest — it hunts. You sat there and let your own word mean nothing. You made a commitment to yourself and you FOLDED. Weak. Pathetic. A wolf who doesn't hunt starves. You're starving your own potential, one skipped task at a time. Get your act together before you become completely irrelevant to yourself.",
+  "Look at you. All that potential, just rotting. You couldn't even finish what YOU set for yourself. Not someone else's standard — yours. That's the most embarrassing kind of failure there is. The wolf inside you is ashamed to share a body with you right now. Do better or accept that mediocrity is your permanent address.",
+  "This is exactly why you'll stay stuck exactly where you are. The men who changed their lives didn't negotiate with their own to-do list — they executed. You had one job. YOUR job. And you quit on yourself. Again. The wolf remembers every failure. Every single one.",
+  "The wolf does not forgive weakness. Every task you abandoned is another crack in your foundation. Keep cracking it and you'll collapse under the weight of who you could've been. Is that who you want to be? A collection of almost-dids and maybes? Decide.",
+  "Absolutely pathetic. You set the standard. Your standard. And you couldn't clear it. What does that say about you? Nothing good. Nothing that belongs near a wolf. The mountain doesn't care about your excuses. Sort yourself out.",
+  "You think this is fine? You think missing your own tasks is acceptable? The wolf hunts in rain, in cold, in exhaustion — because the hunt doesn't negotiate. But you? You negotiated with yourself and lost. You lost to yourself. Let that land."
+];
+
+const PERFECT_MSGS = [
+  "The wolf is satisfied. Every task. Executed. No excuses, no shortcuts. This is what separates you from everyone who says they'll start Monday. You did it today. Keep this up.",
+  "Flawless. The wolf ran today. Every single commitment met. That's not luck — that's character being built, one completed day at a time. Remember this feeling. Chase it tomorrow.",
+  "Clean sweep. The wolf inside you is awake. This is who you are when you decide to be — relentless, consistent, uncompromising. Don't waste this momentum."
+];
+
+let tasks = JSON.parse(localStorage.getItem('wm_tasks') || '[]');
+let history = JSON.parse(localStorage.getItem('wm_history') || '{}');
+let todayChecks = {};
+let editingId = null;
+let selectedDays = [0,1,2,3,4,5,6];
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getTodayDow() { return new Date().getDay(); }
+
+function getTodayTasks() {
+  const dow = getTodayDow();
+  return tasks.filter(t => t.days && t.days.includes(dow));
+}
+
+function loadTodayChecks() {
+  todayChecks = JSON.parse(localStorage.getItem('wm_checks_' + getTodayKey()) || '{}');
+}
+
+function saveTodayChecks() {
+  localStorage.setItem('wm_checks_' + getTodayKey(), JSON.stringify(todayChecks));
+}
+
+function updateScore() {
+  const tt = getTodayTasks();
+  const done = tt.filter(t => todayChecks[t.id]).length;
+  document.getElementById('score-display').textContent = `${done}/${tt.length}`;
+  const pct = tt.length ? (done / tt.length * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function renderToday() {
+  const tt = getTodayTasks();
+  const container = document.getElementById('task-list');
+  if (!tt.length) {
+    container.innerHTML = '<div class="empty-state">No tasks scheduled for today.<br>Add your tasks in the Tasks tab.</div>';
+    updateScore();
+    return;
+  }
+  container.innerHTML = tt.map(t => {
+    const done = !!todayChecks[t.id];
+    const timeStr = t.time ? `<div class="task-time">${t.time}</div>` : '';
+    return `<div class="task-item ${done ? 'done' : ''}" onclick="toggleTask('${t.id}')">
+      <div class="task-check">${done ? '✓' : ''}</div>
+      <div class="task-meta">
+        <div class="task-name">${escHtml(t.name)}</div>
+        ${timeStr}
+      </div>
+    </div>`;
+  }).join('');
+  updateScore();
+}
+
+function toggleTask(id) {
+  todayChecks[id] = !todayChecks[id];
+  saveTodayChecks();
+  renderToday();
+}
+
+function renderManage() {
+  const container = document.getElementById('manage-list');
+  if (!tasks.length) {
+    container.innerHTML = '<div class="empty-state">No tasks yet.<br>Add your first one below.</div>';
+    return;
+  }
+  container.innerHTML = tasks.map(t => {
+    const badges = DAYS_LABELS.map((d,i) =>
+      `<span class="day-badge ${t.days && t.days.includes(i) ? 'on' : ''}">${d}</span>`
+    ).join('');
+    return `<div class="task-item" style="cursor:default">
+      <div class="task-meta">
+        <div class="task-name">${escHtml(t.name)}</div>
+        ${t.time ? `<div class="task-time">${t.time}</div>` : ''}
+        <div class="day-badges" style="margin-top:6px">${badges}</div>
+      </div>
+      <div class="manage-task-actions">
+        <button class="task-action-btn" onclick="editTask('${t.id}')">edit</button>
+        <button class="task-action-btn del" onclick="deleteTask('${t.id}')">del</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  const keys = Object.keys(history).sort().reverse().slice(0, 60);
+  if (!keys.length) {
+    container.innerHTML = '<div class="empty-state">No history yet.<br>Complete a day to see your record here.</div>';
+    return;
+  }
+  container.innerHTML = keys.map(k => {
+    const day = history[k];
+    const done = day.tasks.filter(t => t.done).length;
+    const total = day.tasks.length;
+    const pct = total ? Math.round(done / total * 100) : 0;
+    const cls = pct === 100 ? 'score-good' : pct >= 50 ? 'score-mid' : 'score-bad';
+    const rows = day.tasks.map(t =>
+      `<div class="history-task-row">
+        <span class="${t.done ? 'ht-done' : 'ht-fail'}">${t.done ? '✓' : '✗'}</span>
+        <span style="color:${t.done ? 'var(--muted)' : 'var(--text)'}">${escHtml(t.name)}</span>
+      </div>`
+    ).join('');
+    return `<div class="history-day">
+      <div class="history-day-header" onclick="toggleHistory('${k}')">
+        <div class="history-day-date">${k}</div>
+        <div class="history-score ${cls}">${done}/${total} · ${pct}%</div>
+      </div>
+      <div class="history-tasks" id="hist-${k.replace(/-/g,'_')}">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistory(k) {
+  const el = document.getElementById('hist-' + k.replace(/-/g,'_'));
+  if (el) el.classList.toggle('open');
+}
+
+function openAddModal() {
+  editingId = null;
+  selectedDays = [0,1,2,3,4,5,6];
+  document.getElementById('modal-title').textContent = 'New Task';
+  document.getElementById('field-name').value = '';
+  document.getElementById('field-time').value = '';
+  refreshDayBtns();
+  document.getElementById('task-modal').classList.add('open');
+  setTimeout(() => document.getElementById('field-name').focus(), 100);
+}
+
+function editTask(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+  selectedDays = [...(t.days || [])];
+  document.getElementById('modal-title').textContent = 'Edit Task';
+  document.getElementById('field-name').value = t.name;
+  document.getElementById('field-time').value = t.time || '';
+  refreshDayBtns();
+  document.getElementById('task-modal').classList.add('open');
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  tasks = tasks.filter(t => t.id !== id);
+  localStorage.setItem('wm_tasks', JSON.stringify(tasks));
+  renderManage();
+  renderToday();
+}
+
+function saveTask() {
+  const name = document.getElementById('field-name').value.trim();
+  if (!name) { document.getElementById('field-name').focus(); return; }
+  const time = document.getElementById('field-time').value;
+  if (editingId) {
+    const t = tasks.find(x => x.id === editingId);
+    if (t) { t.name = name; t.time = time; t.days = [...selectedDays]; }
+  } else {
+    tasks.push({ id: Date.now().toString(), name, time, days: [...selectedDays] });
+  }
+  localStorage.setItem('wm_tasks', JSON.stringify(tasks));
+  closeModal();
+  renderManage();
+  renderToday();
+}
+
+function closeModal() {
+  document.getElementById('task-modal').classList.remove('open');
+}
+
+function refreshDayBtns() {
+  document.querySelectorAll('.dp-btn').forEach(btn => {
+    btn.classList.toggle('sel', selectedDays.includes(parseInt(btn.dataset.d)));
+  });
+}
+
+document.querySelectorAll('.dp-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const d = parseInt(btn.dataset.d);
+    if (selectedDays.includes(d)) {
+      if (selectedDays.length > 1) selectedDays = selectedDays.filter(x => x !== d);
+    } else {
+      selectedDays.push(d);
+    }
+    refreshDayBtns();
+  });
+});
+
+function saveHistoryEntry() {
+  const key = getTodayKey();
+  const tt = getTodayTasks();
+  if (!tt.length) return;
+  history[key] = { tasks: tt.map(t => ({ name: t.name, done: !!todayChecks[t.id] })) };
+  localStorage.setItem('wm_history', JSON.stringify(history));
+}
+
+function triggerShameCheck() {
+  const tt = getTodayTasks();
+  if (!tt.length) { alert('No tasks scheduled for today.'); return; }
+  saveHistoryEntry();
+  const failed = tt.filter(t => !todayChecks[t.id]);
+  const shameModal = document.getElementById('shame-modal');
+  const icon = document.getElementById('shame-icon');
+  const title = document.getElementById('shame-title');
+  const text = document.getElementById('shame-text');
+  const tasksEl = document.getElementById('shame-tasks');
+
+  if (failed.length === 0) {
+    icon.textContent = '🐺';
+    title.textContent = 'WOLF SATISFIED';
+    title.style.color = 'var(--success)';
+    text.style.color = 'var(--success)';
+    text.textContent = PERFECT_MSGS[Math.floor(Math.random() * PERFECT_MSGS.length)];
+    tasksEl.textContent = '';
+  } else {
+    const msg = SHAME_MSGS[Math.floor(Math.random() * SHAME_MSGS.length)];
+    icon.textContent = '💀';
+    title.textContent = 'DISGRACEFUL';
+    title.style.color = 'var(--danger)';
+    text.style.color = '#a02020';
+    text.textContent = msg;
+    tasksEl.textContent = 'Failed: ' + failed.map(t => t.name).join(', ');
+  }
+  shameModal.classList.add('open');
+}
+
+function closeShame() {
+  document.getElementById('shame-modal').classList.remove('open');
+}
+
+function clearAllData() {
+  if (!confirm('This will delete ALL tasks and history. Are you absolutely sure?')) return;
+  if (!confirm('Last warning. This cannot be undone.')) return;
+  localStorage.clear();
+  location.reload();
+}
+
+function saveSettings() {
+  localStorage.setItem('wm_reset_time', document.getElementById('reset-time').value);
+}
+
+function loadSettings() {
+  const t = localStorage.getItem('wm_reset_time') || '00:00';
+  document.getElementById('reset-time').value = t;
+}
+
+function checkAutoReset() {
+  const resetTime = localStorage.getItem('wm_reset_time') || '00:00';
+  const now = new Date();
+  const [rh, rm] = resetTime.split(':').map(Number);
+  const resetMoment = new Date(now.getFullYear(), now.getMonth(), now.getDate(), rh, rm, 0);
+  const resetKey = getTodayKey() + '_' + resetTime;
+  const lastReset = localStorage.getItem('wm_last_reset');
+  if (lastReset !== resetKey && now >= resetMoment) {
+    saveHistoryEntry();
+    localStorage.setItem('wm_last_reset', resetKey);
+    todayChecks = {};
+    saveTodayChecks();
+  }
+}
+
+function switchTab(name) {
+  const names = ['today','history','manage','settings'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'manage') renderManage();
+}
+
+function setTodayLabel() {
+  document.getElementById('today-label').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// PWA install prompt
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').style.display = 'block';
+});
+
+// Service worker registration
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// Init
+loadSettings();
+checkAutoReset();
+loadTodayChecks();
+setTodayLabel();
+renderToday();
+</script>
+</body>
+</html>
