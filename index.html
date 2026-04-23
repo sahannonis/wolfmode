@@ -897,14 +897,22 @@ function checkAutoReset() {
   const now = new Date();
   const [rh, rm] = resetTime.split(':').map(Number);
   const resetMoment = new Date(now.getFullYear(), now.getMonth(), now.getDate(), rh, rm, 0);
-  const resetKey = getTodayKey() + '_' + resetTime;
-  const lastReset = localStorage.getItem('wm_last_reset');
-  if (lastReset !== resetKey && now >= resetMoment) {
-    // Save the PREVIOUS day's history using that day's stored checks
+
+  // lastResetDate = the calendar date whose checks we already cleared
+  const lastResetDate = localStorage.getItem('wm_last_reset_date') || '';
+  const todayKey = getTodayKey();
+
+  if (lastResetDate !== todayKey && now >= resetMoment) {
+    // The day that just ended is yesterday — save its checks to history before wiping
     const prevKey = getPrevDateKey();
+    // Only write history for prev day if not already recorded
     if (!history[prevKey]) saveHistoryForDate(prevKey);
-    localStorage.setItem('wm_last_reset', resetKey);
-    // Clear today's checks for the new day
+    localStorage.setItem('wm_history', JSON.stringify(history));
+
+    // Mark today as reset so we don't fire again until tomorrow
+    localStorage.setItem('wm_last_reset_date', todayKey);
+
+    // Clear today's checks — fresh day
     todayChecks = {};
     saveTodayChecks();
   }

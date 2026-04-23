@@ -1,4 +1,4 @@
-const CACHE = 'wolfmode-v2';
+const CACHE = 'wolfmode-v3';
 const ASSETS = [
   './',
   './index.html',
